@@ -37,7 +37,7 @@ app.get('/score/:leng/selections/:anschose', (req,res) => {
        {score++;}
        x++;
     }
-    res.send('<h3>Your score is: <h3>'+score +"/"+length+"<br><i>Please refresh to start again</i>");
+    res.send('<h>Your score is: <h>'+score +"/"+length+"<br><p><i>Please refresh to start again</i></p>");
 })
 
-app.listen(802);
+app.listen(80);
