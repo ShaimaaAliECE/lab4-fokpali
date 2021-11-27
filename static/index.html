@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz</title>
+</head>
+<body>
+    <h1> Welcome the Web-Based quiz</h1>
+    <p><I>Goodluck!</I></p>
+    <a href='javascript:getQuestions()'> Click here to see Questions</a>
+ 
+<div id='questionsDiv'></div>
+
+</div>
+</body>
+
+<script>
+    //to be initializated later
+    let question='';
+    let answer='';
+    const array=[];
+    //displays the questions
+    function getQuestions()
+    {   
+        let xReq = new XMLHttpRequest();
+        xReq.onreadystatechange = displayQuestions;
+
+        xReq.open('GET','/questionsInJson',true);
+        xReq.send();
+    }
+
+    function displayQuestions()
+    {let m=0;
+        if (this.readyState == 4 && this.status == 200)
+        {
+            let questionsDiv = document.getElementById('questionsDiv');
+            let questionsList = JSON.parse(this.responseText);
+            let content ='';
+            let a='';
+            let b='';
+           
+            for (p of questionsList)
+            {   let n=0;
+                content += '<div>';
+                content += '<br>';
+                content += '<div>';
+                content += p.stem;
+                content += '<br>';
+                for (a of p.options)
+                { 
+                    content+= `<input type="radio" name="'question'+${m}" id="${n+":"+m}" value="${p.options[n]}" onchange="getAnswers(${m},${n})"}>`+p.options[n];
+                    n++;
+                    content += '<div>';
+                      
+                };
+    
+                
+                content += `<div id="${m}" ></div>`;
+               
+            
+                m++;
+            
+            }
+            content+= `<button type=submit onclick="getScore(${m})">Submit</button>`;
+            content += `<div id="score"></div>`;
+            questionsDiv.innerHTML = content;
+       
+        }
+        
+        
+    }
+    function getAnswers(que,ans){
+        question=que;
+        answer=ans;
+        array[que]=ans;
+    let xReq = new XMLHttpRequest();
+    xReq.onreadystatechange = displayAnswers;
+    xReq.open('GET','/answers/'+ans+'/question/'+que,true);
+    xReq.send();
+    
+  
+
+}
+function displayAnswers(){
+    let answerDiv = document.getElementById(question);
+    if (this.readyState == 4 && this.status == 200)
+    { 
+        let answered =this.responseText;
+       
+            answerDiv.innerHTML =answered;
+     
+    
+    }
+
+
+}
+    function getScore(length){
+        let xReq = new XMLHttpRequest();
+        xReq.onreadystatechange = displayScore;
+        let stringArray='';
+        for(let x=0; x<length;x++)
+        {
+            stringArray+=array[x];
+        }
+    console.log(stringArray);
+
+    xReq.open('GET','/score/'+length+'/selections/'+stringArray,true);
+    xReq.send();
+    }
+
+    function displayScore(length){
+        let scoreDiv = document.getElementById("score");
+        scoreDiv.innerHTML =this.responseText;
+    }
+
+
+</script>
+</html>
